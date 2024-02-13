@@ -1,0 +1,18 @@
+{
+    "PROJECT_A": "",
+    "deps": {
+      "PROJECT_B": {
+        "commit_id": "",
+        "commit_message": ""
+      },
+      "PROJECT_C": {
+        "commit_id": "",
+        "commit_message": ""
+      },
+      "PROJECT_D": {
+        "commit_id": "",
+        "commit_message": ""
+      }
+    },
+    "comment": ""
+  }
