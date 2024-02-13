@@ -1,0 +1,30 @@
+stages:
+ - VERSION_BUMP
+
+# Updates env.production build version on code push/merge to develop branch
+version-bump:
+  stage: version-bump
+  image: $DOCKER_IMAGE_NAME:$TAG_NAME
+  script:
+    |
+    git config http.sslverify false
+    git config user.name ${TOKEN_NAME}
+    git config user.email "${USER_EMAIL}"
+    git remote remove $CI_PROJECT_NAME || true
+    git remote add $CI_PROJECT_NAME $GIT_CLONE_HTPPS_URL
+    ./scripts/version.sh
+    VERSION=$(grep '^VITE_FC_VERSION=' $CI_PROJECT_DIR/.env.production | cut -d '=' -f 2- | tr -d '"')
+    ./scripts/update_component_details.sh $VERSION
+    git add .
+    git commit -m "${VERSION_BUMP_COMMIT_MESSAGE} $VERSION"
+    git push frontend-client_origin HEAD:$CI_COMMIT_REF_NAME -o ci.skip
+  artifacts:
+    paths:
+      - .env.production
+      - .env.development
+      - .env.staging
+      - config/version.json
+    expire_in: 1 day
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_AUTHOR != "fc-ci <fc-ci@paloaltonetworks.com>"
+    - if: $FORCE_VERSION_BUMP == "true" && $CI_COMMIT_BRANCH == "develop"
